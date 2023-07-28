@@ -4,6 +4,12 @@ import requests
 from itertools import count
 from dotenv import load_dotenv
 
+PROGRAMMER_SPECIALIZATION = "1.221"
+MOSCOW_ID = "1"
+DAYS_IN_PERIOD = 30
+PROGRAMMING_CATALOGUE = 48
+HH_TITLE = "HeadHunter Moscow"
+SJ_TITLE = "SuperJob Moscow"
 
 def predict_rub_salary(salary_from=None, salary_to=None):
     average_salary = None
@@ -20,9 +26,10 @@ def get_vacancies_hh(language, page=0):
     url = "https://api.hh.ru/vacancies"
 
     params = {
-        "text": f"Программист {language}",
-        "area": 1,
-        "period": 31,
+        "specialization": PROGRAMMER_SPECIALIZATION,
+        "text": language,
+        "area": MOSCOW_ID,
+        "period": DAYS_IN_PERIOD,
         "page": page,
     }
 
@@ -47,7 +54,10 @@ def get_intelligence_vacancies_hh(language):
             break
 
     vacancies_found = response["found"]
-    average_salary = sum(average_salaries) / len(average_salaries)
+    if len(average_salaries) == 0:
+        average_salary = 0
+    elif len(average_salaries) > 0:
+        average_salary = sum(average_salaries) / len(average_salaries)
 
     intelligence_vacancies = {
         "vacancies_found": vacancies_found,
@@ -72,9 +82,10 @@ def get_vacancies_sj(key, language, page=0):
         "X-Api-App-Id": key
     }
     params = {
-        "town": "Москва",
+        "town": "Moscow",
+        "period": DAYS_IN_PERIOD,
         "keyword": language,
-        "catalogues": 48,
+        "catalogues": PROGRAMMING_CATALOGUE,
         "page": page
     }
         
@@ -100,7 +111,10 @@ def get_intelligence_vacancies_sj(language, key):
             break
 
     vacancy_count = response["total"]
-    average_salary = sum(average_salaries) / len(average_salaries)
+    if len(average_salaries) == 0:
+        average_salary = 0
+    elif len(average_salaries) > 0:
+        average_salary = sum(average_salaries) / len(average_salaries)
 
     vacancies_for_language = {
         "vacancies_found": vacancy_count,
@@ -137,8 +151,6 @@ def main():
         "Go"
     ]
     
-    HH_TITLE = "HeadHunter Moscow"
-    SJ_TITLE = "SuperJob Moscow"
 
     hh_table = create_table(HH_TITLE, get_statistics_language_hh(languages))
     sj_table = create_table(SJ_TITLE, get_statistics_language_sj(languages, sj_secret_key))
