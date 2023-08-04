@@ -54,7 +54,7 @@ def get_intelligence_vacancies_hh(language):
             break
 
     vacancies_found = response["found"]
-    if len(average_salaries) == 0:
+    if not len(average_salaries):
         average_salary = 0
     elif len(average_salaries) > 0:
         average_salary = sum(average_salaries) / len(average_salaries)
@@ -111,7 +111,7 @@ def get_intelligence_vacancies_sj(language, key):
             break
 
     vacancy_count = response["total"]
-    if len(average_salaries) == 0:
+    if not len(average_salaries):
         average_salary = 0
     elif len(average_salaries) > 0:
         average_salary = sum(average_salaries) / len(average_salaries)
