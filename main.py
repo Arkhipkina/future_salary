@@ -40,7 +40,6 @@ def get_vacancies_hh(language, page=0):
 
 def get_intelligence_vacancies_hh(language):
     average_salaries = []
-    counter = 0
 
     for page in count(0,1):
         response = get_vacancies_hh(language, page=page)
@@ -48,20 +47,19 @@ def get_intelligence_vacancies_hh(language):
         for vacancy in response["items"]:
             if vacancy["salary"] and vacancy["salary"]["currency"] == "RUR":
                 average_salaries.append(predict_rub_salary(vacancy["salary"]["from"], vacancy["salary"]["to"]))
-                counter += 1
 
         if page >= response["pages"] - 1:
             break
 
     vacancies_found = response["found"]
-    if not len(average_salaries):
+    if len(average_salaries) == 0:
         average_salary = 0
-    elif len(average_salaries) > 0:
+    else:
         average_salary = sum(average_salaries) / len(average_salaries)
 
     intelligence_vacancies = {
         "vacancies_found": vacancies_found,
-        "vacancies_processed": counter,
+        "vacancies_processed": len(average_salaries),
         "average_salary": average_salary
     }
 
@@ -97,28 +95,25 @@ def get_vacancies_sj(key, language, page=0):
 
 def get_intelligence_vacancies_sj(language, key):
     average_salaries = []
-    counter = 0
     for page in count(0, 1):
         response = get_vacancies_sj(key, language, page=page)
 
         for vacancy in response["objects"]:
-            if vacancy["payment_from"] or vacancy["payment_to"]:
-                if vacancy["currency"] == "rub":
-                    average_salaries.append(predict_rub_salary(vacancy["payment_from"], vacancy["payment_to"]))
-                    counter += 1
+            if vacancy["payment_from"] or vacancy["payment_to"] and vacancy["currency"] == "rub":
+                average_salaries.append(predict_rub_salary(vacancy["payment_from"], vacancy["payment_to"]))
 
         if not response["more"]:
             break
 
     vacancy_count = response["total"]
-    if not len(average_salaries):
+    if len(average_salaries) == 0:
         average_salary = 0
-    elif len(average_salaries) > 0:
+    else:
         average_salary = sum(average_salaries) / len(average_salaries)
 
     vacancies_for_language = {
         "vacancies_found": vacancy_count,
-        "vacancies_processed": counter,
+        "vacancies_processed": len(average_salaries),
         "average_salary": int(average_salary)
     }
     return vacancies_for_language
